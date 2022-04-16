@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('product_price_quantities', function (Blueprint $table) {
             $table->id();
-            $table->string('product_sku')->unique();
+            $table->string('product_sku');
             $table->integer('productOfferPrice')->nullable();
             $table->integer('productPrice');
             $table->integer('productQuantity');

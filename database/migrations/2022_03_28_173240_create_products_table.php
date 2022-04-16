@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained();
-            $table->foreignId('subcategory_id')->constrained();
-            $table->foreignId('brand_id')->constrained()->nullable();
+            $table->foreignId('category_id')->nullable()->constrained();
+            $table->foreignId('subcategory_id')->nullable()->constrained();
+            $table->foreignId('brand_id')->nullable()->constrained();
             $table->string('productName', 300)->unique();
-            $table->string('productSlug', 350)->unique();
-            $table->string('productDescription', 350);
+            $table->string('productSlug', 350);
+            $table->text('productDescription')->nullable();
             $table->string('metaTitle')->nullable();
             $table->string('metaKeyword')->nullable();
             $table->string('metaDescription')->nullable();

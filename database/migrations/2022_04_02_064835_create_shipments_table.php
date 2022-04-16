@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained();
             $table->foreignId('invoice_id')->constrained();
             $table->string('shipmentTrackingNumber')->unique();
-            $table->string('shipmentDetails');
+            $table->string('shipmentDetails')->nullable();
             $table->timestamps();
         });
     }

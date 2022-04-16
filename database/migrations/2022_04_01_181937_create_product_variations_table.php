@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('product_variations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained();
-            $table->foreignId('variation_id')->constrained()->nullable();
             $table->foreignId('variation_option_id')->constrained()->nullable();
             $table->string('productSku');
             $table->timestamps();
