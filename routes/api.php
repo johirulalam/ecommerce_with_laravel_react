@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\Product\VariationController;
 use App\Http\Controllers\Admin\Product\VariationOptionController;
 use App\Http\Controllers\Admin\Customer\CustomerController;
 use App\Http\Controllers\Admin\Order\OrderController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +23,15 @@ use App\Http\Controllers\Admin\Order\OrderController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::group(['namespace' => '','prefix' => '/admin', 'as' => 'admin.'], function () {
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+Route::get('/', [HomeController::class, 'homepage']);
+Route::get('/products', [HomeController::class, 'products']);
+Route::get('/products/{slug}', [HomeController::class, 'singleProduct']);
+Route::get('/category/{slug}', [HomeController::class, 'categoryProduct']);
+Route::post('admin/login', [AuthController::class, 'login']);
+Route::group(['middleware' => 'auth:sanctum', 'namespace' => '','prefix' => '/admin', 'as' => 'admin.'], function () {
     Route::resource('products', ProductController::class);
     Route::resource('category', CategoryController::class);
     Route::resource('subcategory', SubCategoryController::class);
@@ -32,4 +39,5 @@ Route::group(['namespace' => '','prefix' => '/admin', 'as' => 'admin.'], functio
     Route::resource('variation_options', VariationOptionController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('orders', OrderController::class);
+    Route::post('/logout', [AuthController::class, 'logout']);
 });

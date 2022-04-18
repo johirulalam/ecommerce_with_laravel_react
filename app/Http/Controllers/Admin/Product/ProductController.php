@@ -36,6 +36,8 @@ class ProductController extends Controller
         $request->validate([
             'productName' => 'required|unique:products,productName',
             'productDescription' => 'required',
+            'productPrice' => 'required|integer',
+            'productQuantity' => 'required|integer',
         ]);
         $pro = DB::transaction(function () use($request) {
                 $product = Product::create([
@@ -47,32 +49,22 @@ class ProductController extends Controller
                     'brand_id' => $request->brand_id,
                 ]);
 
-                $productVariationData = [];
-                $productPriceData = [];
-
-                for($i = 0; $i < count($request->variation_id); $i++) {
-                    $productVariationData[] = [
-                        'product_id' => $product->id,
-                        'variation_id' => $request->variation_id[$i],
-                        'variation_option_id' => $request->variation_option_id[$i],
-                        'productSku' => $this->generateUniqueCode(),
-                    ];
-
-                    $productPriceData[] = [
-                        'product_sku' => $productVariationData[$i],
-                        'productOfferPrice' => $request->productOfferPrice[$i],
-                        'productPrice' => $request->productPrice[$i],
-                        'productQuantity' => $request->productQuantity[$i],
-                    ];
-                }
-
-                $productVariation = ProductVariation::create([$productVariationData]);
-                $productPrice = ProductPriceQuantity::create([$productPriceData]);
+                $productVariation = ProductVariation::create([
+                    'variation_option_id' => 1,
+                    'product_id' => $product->id,
+                    'productSku' => $this->generateUniqueCode(),
+                ]);
+                $productPrice = ProductPriceQuantity::create([
+                    'product_sku' => $productVariation->productSku,
+                    'productOfferPrice' => $request->productOfferPrice,
+                    'productPrice' => $request->productPrice,
+                    'productQuantity' => $request->productQuantity,
+                ]);
 
             });
 
 
-        return $this->showOne($pro);
+        return $this->showAll(Product::all());
     }
 
 

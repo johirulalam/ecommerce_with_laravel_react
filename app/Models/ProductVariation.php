@@ -10,6 +10,11 @@ class ProductVariation extends Model
     use HasFactory;
     protected $guarded = [];
 
+    public function product_price()
+    {
+        return $this->hasOne(ProductPriceQuantity::class, 'product_sku', 'productSku');
+    }
+
     public static function generateUniqueCode()
     {
         do {

@@ -9,4 +9,9 @@ class Product extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    public function product_variations()
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
 }

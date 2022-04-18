@@ -19,7 +19,7 @@ class OrderController extends ApiController
             $order->itemNumber = $order->items->count();
             $totalPrice = 0;
             foreach($order->items as $item) {
-                $totalPrice = $totalPrice + $item->orderItemPrice;
+                $totalPrice = $totalPrice + $item->orderItemPrice * $item->orderItemQuantity;
             }
             $order->totalPrice = $totalPrice;
             unset($order['items'],$order['user'], $order['status']);
@@ -51,6 +51,10 @@ class OrderController extends ApiController
         $order->customerName = $order->user->name;
         $order->orderStatusName = $order->status->orderStatusName;
         unset($order['user'], $order['status']);
+        foreach($order->invoices as $invoice){
+            $invoice->payment->paymentMethodName = $invoice->payment->payment_method->paymentMethodName;
+            unset($invoice->payment->payment_method);
+        }
         return response()->json($order);
     }
 
@@ -61,9 +65,21 @@ class OrderController extends ApiController
     }
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request,Order $order)
     {
         //
+        $request->validate([
+            'order_status_id' => 'integer|exists:order_statuses,id',
+        ]);
+
+        if($request->has('order_status_id')) {
+            $order->order_status_id = $request->order_status_id;
+        }
+        if(!$order->isDirty()) {
+            return response()->json('You need to specify which feild you want to update', 422);
+        }
+        $order->save();
+        return response()->json($order);
     }
 
 
