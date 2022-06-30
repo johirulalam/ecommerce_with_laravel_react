@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('product_image_galleries', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
             $table->foreignId('product_id')->constrained();
-            $table->foreignId('product_image_id')->constrained();
-            $table->string('productImageGallery')->unique();
-            $table->tinyInteger('isFeatured')->default(1);
+            $table->text('comment');
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('product_image_galleries');
+        Schema::dropIfExists('comments');
     }
 };

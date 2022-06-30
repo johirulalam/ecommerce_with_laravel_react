@@ -28,7 +28,7 @@ class HomeController extends ApiController
 
     public function products()
     {
-        $products = Product::with('product_variations.product_price')->get();
+        $products = Product::with(['image','product_variations.product_price'])->get();
         return $this->showAll($this->all_products($products));
     }
 
@@ -56,7 +56,12 @@ class HomeController extends ApiController
     public function categoryProduct($slug)
     {
         $subcat = Subcategory::where('subCategorySlug', $slug)->first();
-        $products = Product::where('subcategory_id', $subcat->id)->with('product_variations.product_price')->get();
+        if(empty($subcat)){
+            $subcat = Category::where('categorySlug', $slug)->first();
+        }
+
+       // dd($slug);
+        $products = Product::where('subcategory_id', $subcat->id)->orWhere('category_id', $subcat->id)->with('product_variations.product_price')->get();
         $products = $this->all_products($products);
         return $this->showAll($products);
     }
@@ -66,7 +71,7 @@ class HomeController extends ApiController
 
 
 
-    
+
     public function all_products($products)
     {
         //$products = Product::with('product_variations.product_price')->get();

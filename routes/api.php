@@ -31,7 +31,8 @@ Route::get('/products', [HomeController::class, 'products']);
 Route::get('/products/{slug}', [HomeController::class, 'singleProduct']);
 Route::get('/category/{slug}', [HomeController::class, 'categoryProduct']);
 Route::post('admin/login', [AuthController::class, 'login']);
-Route::group(['middleware' => 'auth:sanctum', 'namespace' => '','prefix' => '/admin', 'as' => 'admin.'], function () {
+Route::group(['namespace' => '','prefix' => '/admin', 'as' => 'admin.'], function () {
+    // 'middleware' => 'auth:sanctum',
     Route::resource('products', ProductController::class);
     Route::resource('category', CategoryController::class);
     Route::resource('subcategory', SubCategoryController::class);

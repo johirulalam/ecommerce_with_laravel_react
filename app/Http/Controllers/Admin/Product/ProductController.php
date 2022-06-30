@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers\Admin\Product;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\ProductImageGallery;
 use App\Models\ProductPriceQuantity;
 use App\Models\ProductVariation;
+use App\Models\Brand;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
-class ProductController extends Controller
+class ProductController extends ApiController
 {
-    use ApiResponser;
 
 
     public function index()
@@ -26,8 +29,14 @@ class ProductController extends Controller
 
     public function create()
     {
-        //
+        $category = Category::with('subcategory')->get();
+        $sources = Brand::all();
+        $response = [
+            'categories' => $category,
+            'sources' => $sources,
+        ];
 
+        return response()->json($response);
     }
 
     public function store(Request $request)
@@ -38,8 +47,12 @@ class ProductController extends Controller
             'productDescription' => 'required',
             'productPrice' => 'required|integer',
             'productQuantity' => 'required|integer',
+            //'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+            'image_gallery.*' => 'image|mimes:jpg,jpeg,png,gif,svg|max:2048'
         ]);
         $pro = DB::transaction(function () use($request) {
+
+
                 $product = Product::create([
                     'productName' => $request->productName,
                     'productSlug' => Str::slug($request->productName, '-'),
@@ -54,12 +67,45 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'productSku' => $this->generateUniqueCode(),
                 ]);
+
                 $productPrice = ProductPriceQuantity::create([
                     'product_sku' => $productVariation->productSku,
                     'productOfferPrice' => $request->productOfferPrice,
                     'productPrice' => $request->productPrice,
                     'productQuantity' => $request->productQuantity,
                 ]);
+                $i = 1;
+                if($request->hasfile('image')){
+                    $image = $request->file('image');
+                    $imageName = 'pro_'.date('YmdHi').$i.$image->getClientOriginalName();
+                    $image->move(public_path('images/products'), $imageName);
+                    $productImage = new ProductImage();
+                    $productImage->product_id = $product->id;
+                    $productImage->productImage = $imageName;
+                    $productImage->save();
+                }
+
+                if($images = $request->file('image_gallery')){
+
+                    foreach($images as $image){
+                        $i = $i+1;
+                        $imageName = 'pro_'.date('YmdHi').$i.$image->getClientOriginalName();
+                        $image->move(public_path('images/products'), $imageName);
+
+                        $galleryImage =  ProductImageGallery::create([
+                            'product_image_id' => $productImage->id,
+                            'product_id' => $product->id,
+                            'productImageGallery' => $imageName,
+                        ]);
+                        // $galleryImage->product_image_id = $productImage->id;
+                        // $galleryImage->product_id = $product->id;
+                        // $galleryImage->productImageGallery = $imageName;
+                        // $galleryImage->save();
+                    }
+
+                }
+
+
 
             });
 
